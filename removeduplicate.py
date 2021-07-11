@@ -1,65 +1,59 @@
-#import usersdata
 import csv
-def project(data):
-    fd=open(data,"r")
-    data=fd.readlines()
-    #data1=csv.reader(fd)
-    print(len(data))
-    for i in range(1,len(data)-1):
-        x=(data[i].split(",")[4])
-        phone=x.split()
-        x1=("".join(phone))
-        #print(x1)
-        for j in range(i+1,len(data)-1):
+import json
+
+def get_data_by_csv_file(filename):
+    data_list = []
+    fd = open(filename, 'rt')
+    fdata = csv.reader(fd)
+
+    for row in fdata:
+        data_list.append(row)
+
+    fd.close()
+    return(data_list)
+
+def delete_duplicates(data_list):
+    n = len(data_list)- 1
+    for i in range(1, n):
+        j = i + 1
+        for j in range(i+1, n):
             try:
-                y=(data[j].split(",")[4])
+                src1 = "".join(data_list[i][4].split())
+                src2 = "".join(data_list[i][5].split())
+                dst1 = "".join(data_list[j][4].split())
+                dst2 = "".join(data_list[j][5].split())
             except IndexError:
-                #print(j)
-                continue  
-            phonenum=y.split()
-            y1=("".join(phonenum))
-            
-            if(int(x1)==int(y1)):
-                yield j
-                #print(j)
-                
-    fd.close
-    return data
+                continue
+            if(src1 == dst1 or src1 == dst2):
+                del(data_list[j])
+                n = n - 1
+                print(n)
+    print(len(data_list))
+    return(data_list)
+    
 
-
-def remove_duplicate(dup_rows):
-    data = "stu-data.csv"
-    fd = open(data,"r")
-    data = fd.readlines()
-    print(dup_rows)
-    
-    A = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}
-    
-    rows = A-dup_rows
-    #print(rows)
-    list_rows = list(rows)
-    print(list_rows)
-    print(len(list_rows))
-    
-     
-    for i in range(0,len(list_rows)-1):
-        j = list_rows[i]
-        #print(j)
-        print(data[j])
-    
-    fd.close
- 
- 
 def main():
-    data = "stu-data.csv"
-    output=project(data) 
-   
+    filename = "stu-data.csv"
+    data_list = get_data_by_csv_file(filename)
+    print(data_list)
+    print("")
+    dlist = delete_duplicates(data_list)
+    print(dlist)
     
-    set_data = set(output)
-    print("Duplicate rows are : ",set_data)
+    gdata = []
+    for row in dlist:
+        
+        userdata = ('{}, {}'.format(row[4], row[5]))
+        print(userdata)
+        gdata.append(userdata)
     
-    remove_duplicate(set_data) 
-    return
+    print(gdata)
+    with open("gusers-data.csv", "w") as fd:
+        gd = csv.writer(fd, delimiter = '\t')
+        for r in gdata:
 
+            gd.writerow(r)
+
+    return
 if (__name__ == "__main__"):
     main()
